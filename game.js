@@ -18,6 +18,7 @@ const player = {
     gravity: 0.5,
     jumpPower: -10,
     grounded: false,
+    score: 0,
 };
 
 // Platforms
@@ -27,6 +28,16 @@ const platforms = [
     { x: 550, y: 350, width: 200, height: 10 },
     { x: 200, y: 250, width: 150, height: 10 },
     { x: 450, y: 200, width: 150, height: 10 },
+];
+
+// Moving Platforms
+const movingPlatforms = [
+    { x: 100, y: 300, width: 200, height: 10, speed: 2, direction: 1 },
+];
+
+// Enemies
+const enemies = [
+    { x: 400, y: 370, width: 30, height: 30, speed: 2, direction: 1 },
 ];
 
 // Key Listeners
@@ -55,6 +66,7 @@ function update() {
             player.y = platform.y - player.height;
             player.velocityY = 0;
             player.grounded = true;
+            player.score += 10; // Increase score on landing
         }
     }
     
@@ -67,6 +79,23 @@ function update() {
     if (player.y > canvas.height) {
         player.y = 400;
         player.velocityY = 0;
+        player.score = 0; // Reset score on fall
+    }
+
+    // Move Moving Platforms
+    for (let platform of movingPlatforms) {
+        platform.x += platform.speed * platform.direction;
+        if (platform.x <= 50 || platform.x + platform.width >= canvas.width - 50) {
+            platform.direction *= -1;
+        }
+    }
+
+    // Move Enemies
+    for (let enemy of enemies) {
+        enemy.x += enemy.speed * enemy.direction;
+        if (enemy.x <= 50 || enemy.x + enemy.width >= canvas.width - 50) {
+            enemy.direction *= -1;
+        }
     }
 }
 
@@ -82,6 +111,23 @@ function draw() {
     for (let platform of platforms) {
         ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
     }
+
+    // Draw moving platforms
+    ctx.fillStyle = "purple";
+    for (let platform of movingPlatforms) {
+        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+    }
+
+    // Draw enemies
+    ctx.fillStyle = "red";
+    for (let enemy of enemies) {
+        ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    }
+
+    // Draw score
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
+    ctx.fillText("Score: " + player.score, 20, 30);
 }
 
 function gameLoop() {
